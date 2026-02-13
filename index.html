@@ -571,6 +571,8 @@
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             margin: 20px 0;
+            max-height: 600px;
+            overflow-y: auto;
         }
 
         .ranking-table {
@@ -581,6 +583,9 @@
         .ranking-table thead {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .ranking-table th {
@@ -658,6 +663,28 @@
         .empty-ranking-text {
             font-size: 1.2em;
             margin-bottom: 10px;
+        }
+
+        .loading-ranking {
+            padding: 40px;
+            text-align: center;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Tela de Créditos */
@@ -920,11 +947,12 @@
                         <li>Para avançar de fase, você precisa de <strong>mínimo 10 pontos</strong></li>
                         <li>Pontuação total mínima para concluir: <strong>100 pontos</strong></li>
                         <li>Se falhar, você repete a fase até conseguir passar</li>
-                        <li>Seu tempo será cronometrado para o ranking! ⏱️</li>
+                        <li>Seu tempo será cronometrado para o ranking global! 🌍⏱️</li>
                     </ul>
                 </div>
 
                 <button class="btn btn-primary" onclick="startGame()">🚀 Começar Jogo</button>
+                <button class="btn btn-primary" onclick="showRankingFromStart()">🏆 Ver Ranking Global</button>
             </div>
         </div>
 
@@ -1076,7 +1104,7 @@
                     </div>
                 </div>
 
-                <button class="btn btn-primary" onclick="showRanking()">🏆 Ver Ranking</button>
+                <button class="btn btn-primary" onclick="showRanking()">🏆 Ver Ranking Global</button>
                 <button class="btn btn-primary" onclick="showCredits()">👥 Ver Equipe de Desenvolvimento</button>
                 <button class="btn btn-primary" onclick="restartGame()">🔄 Jogar Novamente</button>
             </div>
@@ -1085,8 +1113,8 @@
         <!-- Tela de Ranking -->
         <div class="screen" id="rankingScreen">
             <div class="ranking-screen">
-                <h1 class="ranking-title">🏆 Ranking de Jogadores</h1>
-                <p class="ranking-subtitle">Os melhores desempenhos registrados</p>
+                <h1 class="ranking-title">🏆 Ranking Global</h1>
+                <p class="ranking-subtitle">Os melhores desempenhos de jogadores ao redor do mundo</p>
 
                 <div class="ranking-table-container">
                     <table class="ranking-table">
@@ -1098,7 +1126,14 @@
                             </tr>
                         </thead>
                         <tbody id="rankingTableBody">
-                            <!-- Preenchido dinamicamente -->
+                            <tr>
+                                <td colspan="3">
+                                    <div class="loading-ranking">
+                                        <div class="loading-spinner"></div>
+                                        <p>Carregando ranking...</p>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -1155,6 +1190,38 @@
             </div>
         </div>
     </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, push, set, onValue, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        // ==================== CONFIGURAÇÃO DO FIREBASE ====================
+        // SUBSTITUA ESTAS CREDENCIAIS PELAS SUAS DO FIREBASE!
+        const firebaseConfig = {
+            apiKey: "AIzaSyAj72MtNcE5Pmza-nKZrLkBtqy0ax2KyWQ",
+            authDomain: "trabalho-gamificacao.firebaseapp.com",
+            databaseURL: "https://trabalho-gamificacao-default-rtdb.firebaseio.com",
+            projectId: "trabalho-gamificacao",
+            storageBucket: "trabalho-gamificacao.firebasestorage.app",
+            messagingSenderId: "1025455529602",
+            appId: "1:1025455529602:web:97b7989efa63765be5de9b"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Disponibilizar funções globalmente
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebasePush = push;
+        window.firebaseSet = set;
+        window.firebaseOnValue = onValue;
+        window.firebaseQuery = query;
+        window.firebaseOrderByChild = orderByChild;
+        window.firebaseLimitToLast = limitToLast;
+    </script>
 
     <script>
         // ==================== CONFIGURAÇÃO DO JOGO ====================
@@ -1546,75 +1613,102 @@
         // Pontuação máxima possível por variável (5 fases x 3 questões x 5 pontos = 75)
         const MAX_VARIABLE_SCORE = 75;
 
-        // ==================== SISTEMA DE RANKING ====================
+        // ==================== SISTEMA DE RANKING FIREBASE ====================
 
         function saveToRanking(name, score, time) {
-            // Recuperar ranking existente do localStorage
-            let ranking = JSON.parse(localStorage.getItem('gameRanking') || '[]');
-            
-            // Adicionar novo registro
-            ranking.push({
-                name: name,
-                score: score,
-                time: time,
-                timestamp: new Date().toISOString()
-            });
-            
-            // Ordenar por pontuação (descendente), depois por tempo (ascendente)
-            ranking.sort((a, b) => {
-                if (b.score !== a.score) {
-                    return b.score - a.score;
-                }
-                return a.time - b.time;
-            });
-            
-            // Salvar de volta no localStorage
-            localStorage.setItem('gameRanking', JSON.stringify(ranking));
+            try {
+                const rankingRef = window.firebaseRef(window.firebaseDB, 'ranking');
+                const newRankingRef = window.firebasePush(rankingRef);
+                
+                window.firebaseSet(newRankingRef, {
+                    name: name,
+                    score: score,
+                    time: time,
+                    timestamp: Date.now()
+                }).then(() => {
+                    console.log('✅ Pontuação salva no ranking global!');
+                }).catch((error) => {
+                    console.error('❌ Erro ao salvar no ranking:', error);
+                });
+            } catch (error) {
+                console.error('❌ Erro ao acessar Firebase:', error);
+            }
         }
 
         function loadRanking() {
-            const ranking = JSON.parse(localStorage.getItem('gameRanking') || '[]');
             const tableBody = document.getElementById('rankingTableBody');
             
-            if (ranking.length === 0) {
+            try {
+                const rankingRef = window.firebaseRef(window.firebaseDB, 'ranking');
+                
+                window.firebaseOnValue(rankingRef, (snapshot) => {
+                    const data = snapshot.val();
+                    
+                    if (!data) {
+                        tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="3">
+                                    <div class="empty-ranking">
+                                        <div class="empty-ranking-icon">🏆</div>
+                                        <p class="empty-ranking-text">Nenhum jogador registrado ainda</p>
+                                        <p style="font-size: 0.9em; color: #999;">Seja o primeiro a completar o jogo!</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    // Converter objeto para array
+                    const ranking = Object.values(data);
+                    
+                    // Ordenar por pontuação (descendente), depois por tempo (ascendente)
+                    ranking.sort((a, b) => {
+                        if (b.score !== a.score) {
+                            return b.score - a.score;
+                        }
+                        return a.time - b.time;
+                    });
+                    
+                    tableBody.innerHTML = '';
+                    
+                    ranking.forEach((entry, index) => {
+                        const row = document.createElement('tr');
+                        
+                        // Medalhas para top 3
+                        let medal = '';
+                        if (index === 0) medal = '🥇';
+                        else if (index === 1) medal = '🥈';
+                        else if (index === 2) medal = '🥉';
+                        
+                        row.innerHTML = `
+                            <td>
+                                <span class="rank-position">
+                                    <span class="rank-medal">${medal}</span>
+                                    <span class="rank-score">${entry.score} pts</span>
+                                </span>
+                            </td>
+                            <td><span class="rank-name">${entry.name}</span></td>
+                            <td><span class="rank-time">${formatTime(entry.time)}</span></td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    });
+                });
+            } catch (error) {
+                console.error('❌ Erro ao carregar ranking:', error);
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="3">
                             <div class="empty-ranking">
-                                <div class="empty-ranking-icon">🏆</div>
-                                <p class="empty-ranking-text">Nenhum jogador registrado ainda</p>
-                                <p style="font-size: 0.9em; color: #999;">Seja o primeiro a completar o jogo!</p>
+                                <div class="empty-ranking-icon">⚠️</div>
+                                <p class="empty-ranking-text">Erro ao carregar ranking</p>
+                                <p style="font-size: 0.9em; color: #999;">Verifique sua conexão com a internet</p>
                             </div>
                         </td>
                     </tr>
                 `;
-                return;
             }
-            
-            tableBody.innerHTML = '';
-            
-            ranking.forEach((entry, index) => {
-                const row = document.createElement('tr');
-                
-                // Medalhas para top 3
-                let medal = '';
-                if (index === 0) medal = '🥇';
-                else if (index === 1) medal = '🥈';
-                else if (index === 2) medal = '🥉';
-                
-                row.innerHTML = `
-                    <td>
-                        <span class="rank-position">
-                            <span class="rank-medal">${medal}</span>
-                            <span class="rank-score">${entry.score} pts</span>
-                        </span>
-                    </td>
-                    <td><span class="rank-name">${entry.name}</span></td>
-                    <td><span class="rank-time">${formatTime(entry.time)}</span></td>
-                `;
-                
-                tableBody.appendChild(row);
-            });
         }
 
         function formatTime(seconds) {
@@ -1920,7 +2014,7 @@
         function showResults() {
             const maxScore = totalQuestions * 10; // 15 questões x 10 pontos = 150 max
 
-            // Salvar no ranking
+            // Salvar no ranking Firebase
             saveToRanking(playerName, totalScore, gameEndTime);
 
             // Determinar resultado baseado na pontuação total
@@ -1963,6 +2057,11 @@
         function showRanking() {
             loadRanking();
             switchScreen('resultScreen', 'rankingScreen');
+        }
+
+        function showRankingFromStart() {
+            loadRanking();
+            switchScreen('startScreen', 'rankingScreen');
         }
 
         function restartGame() {
