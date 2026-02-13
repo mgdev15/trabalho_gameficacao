@@ -210,6 +210,44 @@
             opacity: 0.7;
         }
 
+        /* Input de Nome */
+        .name-input-container {
+            background: #f8f9ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 3px solid #667eea;
+        }
+
+        .name-input-container h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .name-error {
+            color: #f44336;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
         /* Header do Jogo */
         .game-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -234,6 +272,12 @@
         .score-display {
             font-size: 1.3em;
             font-weight: bold;
+        }
+
+        .timer-display {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #fff;
         }
 
         /* Barras de Variáveis */
@@ -503,6 +547,119 @@
             border-bottom: none;
         }
 
+        /* Tela de Ranking */
+        .ranking-screen {
+            text-align: center;
+        }
+
+        .ranking-title {
+            font-size: 2.2em;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .ranking-subtitle {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .ranking-table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ranking-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .ranking-table th {
+            padding: 20px 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-align: left;
+        }
+
+        .ranking-table th:first-child {
+            border-radius: 15px 0 0 0;
+        }
+
+        .ranking-table th:last-child {
+            border-radius: 0 15px 0 0;
+        }
+
+        .ranking-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .ranking-table tbody tr:hover {
+            background: #f8f9ff;
+            transform: scale(1.02);
+        }
+
+        .ranking-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-table td {
+            padding: 18px 15px;
+            font-size: 1em;
+        }
+
+        .rank-position {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .rank-medal {
+            font-size: 1.5em;
+            margin-right: 5px;
+        }
+
+        .rank-score {
+            font-weight: bold;
+            color: #4caf50;
+            font-size: 1.1em;
+        }
+
+        .rank-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .rank-time {
+            color: #666;
+            font-family: 'Courier New', monospace;
+        }
+
+        .empty-ranking {
+            padding: 60px 20px;
+            text-align: center;
+            color: #999;
+        }
+
+        .empty-ranking-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .empty-ranking-text {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
         /* Tela de Créditos */
         .credits-screen {
             text-align: center;
@@ -671,6 +828,15 @@
             .credits-title {
                 font-size: 1.8em;
             }
+
+            .ranking-table {
+                font-size: 0.9em;
+            }
+
+            .ranking-table th,
+            .ranking-table td {
+                padding: 12px 8px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -694,6 +860,16 @@
 
             .variables-container {
                 grid-template-columns: 1fr 1fr;
+            }
+
+            .ranking-table th,
+            .ranking-table td {
+                padding: 10px 5px;
+                font-size: 0.85em;
+            }
+
+            .rank-medal {
+                font-size: 1.2em;
             }
         }
     </style>
@@ -725,6 +901,18 @@
                     Enfrente 5 fases com desafios do dia a dia corporativo e prove suas habilidades!
                 </p>
 
+                <div class="name-input-container">
+                    <h3>👤 Identifique-se para começar:</h3>
+                    <input 
+                        type="text" 
+                        id="playerNameInput" 
+                        class="name-input" 
+                        placeholder="Digite seu nome completo"
+                        maxlength="50"
+                    >
+                    <p class="name-error" id="nameError">Por favor, digite seu nome para continuar.</p>
+                </div>
+
                 <div style="background: #fff3e0; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #ff9800;">
                     <h3 style="color: #ff9800; margin-bottom: 10px;">📋 Regras do Jogo:</h3>
                     <ul style="text-align: left; color: #666; line-height: 1.8;">
@@ -732,6 +920,7 @@
                         <li>Para avançar de fase, você precisa de <strong>mínimo 10 pontos</strong></li>
                         <li>Pontuação total mínima para concluir: <strong>100 pontos</strong></li>
                         <li>Se falhar, você repete a fase até conseguir passar</li>
+                        <li>Seu tempo será cronometrado para o ranking! ⏱️</li>
                     </ul>
                 </div>
 
@@ -744,6 +933,7 @@
             <div class="game-header">
                 <div class="header-top">
                     <div class="phase-info" id="phaseInfo">Fase 1: Onboarding</div>
+                    <div class="timer-display">⏱️ <span id="timerDisplay">00:00</span></div>
                     <div class="score-display">📊 <span id="scoreDisplay">0</span> pts</div>
                 </div>
 
@@ -880,9 +1070,40 @@
                         <span class="stat-label">💰 Resultado Financeiro Total:</span>
                         <span class="stat-value" id="finalFin">0 pts</span>
                     </div>
+                    <div class="stat-row" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #667eea;">
+                        <span class="stat-label">⏱️ Tempo Total:</span>
+                        <span class="stat-value" id="finalTime">00:00</span>
+                    </div>
                 </div>
 
+                <button class="btn btn-primary" onclick="showRanking()">🏆 Ver Ranking</button>
                 <button class="btn btn-primary" onclick="showCredits()">👥 Ver Equipe de Desenvolvimento</button>
+                <button class="btn btn-primary" onclick="restartGame()">🔄 Jogar Novamente</button>
+            </div>
+        </div>
+
+        <!-- Tela de Ranking -->
+        <div class="screen" id="rankingScreen">
+            <div class="ranking-screen">
+                <h1 class="ranking-title">🏆 Ranking de Jogadores</h1>
+                <p class="ranking-subtitle">Os melhores desempenhos registrados</p>
+
+                <div class="ranking-table-container">
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Pontuação</th>
+                                <th>Nome</th>
+                                <th>Tempo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankingTableBody">
+                            <!-- Preenchido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <button class="btn btn-primary" onclick="backToResults()">← Voltar aos Resultados</button>
                 <button class="btn btn-primary" onclick="restartGame()">🔄 Jogar Novamente</button>
             </div>
         </div>
@@ -1296,6 +1517,7 @@
         let currentPhase = 0;
         let currentQuestion = 0;
         let totalScore = 0;
+        let playerName = '';
         
         // Variáveis individuais GLOBAIS
         let produtividade = 0;
@@ -1312,6 +1534,11 @@
         let totalQuestions = 0;
         let answeredQuestions = 0;
 
+        // Variáveis de tempo
+        let gameStartTime = 0;
+        let gameEndTime = 0;
+        let timerInterval = null;
+
         // Pontuação mínima para passar de fase (10 pontos no total da fase)
         const MIN_PHASE_SCORE = 10;
         // Pontuação mínima geral para concluir o jogo com sucesso (100 pontos)
@@ -1319,9 +1546,118 @@
         // Pontuação máxima possível por variável (5 fases x 3 questões x 5 pontos = 75)
         const MAX_VARIABLE_SCORE = 75;
 
+        // ==================== SISTEMA DE RANKING ====================
+
+        function saveToRanking(name, score, time) {
+            // Recuperar ranking existente do localStorage
+            let ranking = JSON.parse(localStorage.getItem('gameRanking') || '[]');
+            
+            // Adicionar novo registro
+            ranking.push({
+                name: name,
+                score: score,
+                time: time,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Ordenar por pontuação (descendente), depois por tempo (ascendente)
+            ranking.sort((a, b) => {
+                if (b.score !== a.score) {
+                    return b.score - a.score;
+                }
+                return a.time - b.time;
+            });
+            
+            // Salvar de volta no localStorage
+            localStorage.setItem('gameRanking', JSON.stringify(ranking));
+        }
+
+        function loadRanking() {
+            const ranking = JSON.parse(localStorage.getItem('gameRanking') || '[]');
+            const tableBody = document.getElementById('rankingTableBody');
+            
+            if (ranking.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="3">
+                            <div class="empty-ranking">
+                                <div class="empty-ranking-icon">🏆</div>
+                                <p class="empty-ranking-text">Nenhum jogador registrado ainda</p>
+                                <p style="font-size: 0.9em; color: #999;">Seja o primeiro a completar o jogo!</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tableBody.innerHTML = '';
+            
+            ranking.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                
+                // Medalhas para top 3
+                let medal = '';
+                if (index === 0) medal = '🥇';
+                else if (index === 1) medal = '🥈';
+                else if (index === 2) medal = '🥉';
+                
+                row.innerHTML = `
+                    <td>
+                        <span class="rank-position">
+                            <span class="rank-medal">${medal}</span>
+                            <span class="rank-score">${entry.score} pts</span>
+                        </span>
+                    </td>
+                    <td><span class="rank-name">${entry.name}</span></td>
+                    <td><span class="rank-time">${formatTime(entry.time)}</span></td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+            document.getElementById('timerDisplay').textContent = formatTime(elapsed);
+        }
+
+        function startTimer() {
+            gameStartTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            gameEndTime = Math.floor((Date.now() - gameStartTime) / 1000);
+        }
+
         // ==================== FUNÇÕES PRINCIPAIS ====================
 
         function startGame() {
+            // Validar nome do jogador
+            const nameInput = document.getElementById('playerNameInput');
+            const nameError = document.getElementById('nameError');
+            
+            playerName = nameInput.value.trim();
+            
+            if (playerName === '') {
+                nameError.style.display = 'block';
+                nameInput.focus();
+                return;
+            }
+            
+            nameError.style.display = 'none';
+
             // Resetar todas variáveis
             currentPhase = 0;
             currentQuestion = 0;
@@ -1334,6 +1670,9 @@
             
             totalQuestions = gamePhases.reduce((sum, phase) => sum + phase.questions.length, 0);
             answeredQuestions = 0;
+
+            // Iniciar cronômetro
+            startTimer();
 
             // Mudar para tela de jogo
             switchScreen('startScreen', 'gameScreen');
@@ -1528,6 +1867,7 @@
                     loadPhase();
                 } else {
                     // Fim do jogo
+                    stopTimer();
                     showResults();
                 }
             }
@@ -1580,6 +1920,9 @@
         function showResults() {
             const maxScore = totalQuestions * 10; // 15 questões x 10 pontos = 150 max
 
+            // Salvar no ranking
+            saveToRanking(playerName, totalScore, gameEndTime);
+
             // Determinar resultado baseado na pontuação total
             let emoji, title, message;
             if (totalScore >= 130) {
@@ -1611,15 +1954,26 @@
             document.getElementById('finalRep').textContent = reputacao;
             document.getElementById('finalCon').textContent = conhecimento;
             document.getElementById('finalFin').textContent = financeiro;
+            document.getElementById('finalTime').textContent = formatTime(gameEndTime);
 
             // Mudar para tela de resultado
             switchScreen('gameScreen', 'resultScreen');
         }
 
+        function showRanking() {
+            loadRanking();
+            switchScreen('resultScreen', 'rankingScreen');
+        }
+
         function restartGame() {
+            // Limpar input de nome
+            document.getElementById('playerNameInput').value = '';
+            
+            // Voltar para tela inicial
             switchScreen('resultScreen', 'startScreen');
             switchScreen('creditsScreen', 'startScreen');
             switchScreen('phaseFailScreen', 'startScreen');
+            switchScreen('rankingScreen', 'startScreen');
         }
 
         function showCredits() {
@@ -1628,6 +1982,7 @@
 
         function backToResults() {
             switchScreen('creditsScreen', 'resultScreen');
+            switchScreen('rankingScreen', 'resultScreen');
         }
 
         function switchScreen(fromScreen, toScreen) {
