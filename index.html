@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabalho Gamificação — Jogo de Desenvolvimento Profissional</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Tela de Início */
+        .screen {
+            display: none;
+            padding: 40px;
+            min-height: 500px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .game-subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .character-sprite {
+            width: 200px;
+            height: 200px;
+            margin: 30px auto;
+            position: relative;
+        }
+
+        /* Sprite do personagem profissional */
+        .sprite-professional {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 50% 50% 0 0;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .sprite-head {
+            width: 80px;
+            height: 80px;
+            background: #ffd6a5;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 3px solid #333;
+        }
+
+        .sprite-eyes {
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 35px;
+        }
+
+        .sprite-eye-left {
+            left: 22px;
+        }
+
+        .sprite-eye-right {
+            right: 22px;
+        }
+
+        .sprite-smile {
+            width: 30px;
+            height: 15px;
+            border: 3px solid #333;
+            border-top: none;
+            border-radius: 0 0 30px 30px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .sprite-body {
+            width: 100px;
+            height: 80px;
+            background: #4a90e2;
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px;
+        }
+
+        .sprite-tie {
+            width: 15px;
+            height: 50px;
+            background: #c41e3a;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            clip-path: polygon(50% 0%, 0% 20%, 20% 100%, 80% 100%, 100% 20%);
+        }
+
+        .sprite-arms {
+            width: 120px;
+            height: 20px;
+            background: #4a90e2;
+            position: absolute;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-option {
+            width: 100%;
+            padding: 20px;
+            margin: 10px 0;
+            background: white;
+            border: 3px solid #e0e0e0;
+            color: #333;
+            text-align: left;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-option:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateX(10px);
+        }
+
+        .btn-option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
+        .btn-option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .btn-option:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Header do Jogo */
+        .game-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .phase-info {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .score-display {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        /* Barras de Variáveis */
+        .variables-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .variable-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .variable-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .variable-name {
+            font-size: 0.85em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .variable-value {
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .variable-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .variable-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .var-produtividade .variable-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+
+        .var-reputacao .variable-fill {
+            background: linear-gradient(90deg, #2196F3, #03A9F4);
+        }
+
+        .var-conhecimento .variable-fill {
+            background: linear-gradient(90deg, #FF9800, #FFC107);
+        }
+
+        .var-financeiro .variable-fill {
+            background: linear-gradient(90deg, #9C27B0, #E91E63);
+        }
+
+        /* Barra de Progresso */
+        .progress-container {
+            background: #e0e0e0;
+            height: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        /* Área de Questão */
+        .question-area {
+            padding: 30px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .scenario-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .scenario-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        /* Feedback Visual */
+        .feedback {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .feedback.correct {
+            background: #4caf50;
+            color: white;
+        }
+
+        .feedback.incorrect {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Tela de Falha na Fase */
+        .phase-fail-screen {
+            text-align: center;
+        }
+
+        .fail-icon {
+            font-size: 100px;
+            margin: 20px 0;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .fail-title {
+            font-size: 2em;
+            color: #f44336;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .fail-message {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .fail-stats {
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .fail-stats h3 {
+            color: #ff9800;
+            margin-bottom: 15px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ffe0b2;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .stat-value.low {
+            color: #f44336;
+        }
+
+        .stat-value.ok {
+            color: #ff9800;
+        }
+
+        /* Tela de Resultado */
+        .result-screen {
+            text-align: center;
+        }
+
+        .result-sprite {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            font-size: 100px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .result-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .result-score {
+            font-size: 3em;
+            color: #667eea;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .result-message {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .result-breakdown {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Tela de Créditos */
+        .credits-screen {
+            text-align: center;
+        }
+
+        .credits-title {
+            font-size: 2.2em;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .credits-subtitle {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+            padding: 0 20px;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .team-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .team-avatar {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover .team-avatar {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .team-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .team-role {
+            font-size: 0.95em;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .team-description {
+            font-size: 0.85em;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .credits-footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .credits-footer p {
+            color: #666;
+            font-size: 0.95em;
+            margin: 10px 0;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 1.8em;
+            }
+
+            .game-subtitle {
+                font-size: 1em;
+            }
+
+            .screen {
+                padding: 20px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .variables-container {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 10px;
+            }
+
+            .variable-name {
+                font-size: 0.75em;
+            }
+
+            .question-text {
+                font-size: 1.1em;
+            }
+
+            .btn-option {
+                font-size: 0.9em;
+                padding: 15px;
+            }
+
+            .character-sprite {
+                width: 150px;
+                height: 150px;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 20px;
+            }
+
+            .team-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+
+            .team-name {
+                font-size: 1.1em;
+            }
+
+            .credits-title {
+                font-size: 1.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-title {
+                font-size: 1.5em;
+            }
+
+            #main-p{
+                margin-top: 100px;
+            }
+
+            .btn {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+
+            .character-sprite {
+                width: 120px;
+                height: 120px;
+            }
+
+            .variables-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Tela de Início -->
+        <div class="screen active" id="startScreen">
+            <div class="start-screen">
+                <h1 class="game-title">🏢 Trabalho Gamificação</h1>
+                <p class="game-subtitle">Desenvolva suas habilidades profissionais através de desafios reais do ambiente corporativo</p>
+                
+                <div class="character-sprite">
+                    <div class="sprite-professional">
+                        <div class="sprite-head">
+                            <div class="sprite-eyes sprite-eye-left"></div>
+                            <div class="sprite-eyes sprite-eye-right"></div>
+                            <div class="sprite-smile"></div>
+                        </div>
+                        <div class="sprite-body">
+                            <div class="sprite-tie"></div>
+                        </div>
+                        <div class="sprite-arms"></div>
+                    </div>
+                </div>
+
+                <p id="main-p" style="font-size: 1.1em; color: #666; margin-bottom: 30px;">
+                    Você é um novo colaborador em uma empresa de tecnologia.<br>
+                    Enfrente 5 fases com desafios do dia a dia corporativo e prove suas habilidades!
+                </p>
+
+                <div style="background: #fff3e0; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #ff9800;">
+                    <h3 style="color: #ff9800; margin-bottom: 10px;">📋 Regras do Jogo:</h3>
+                    <ul style="text-align: left; color: #666; line-height: 1.8;">
+                        <li>Cada resposta certa soma <strong>5 pontos</strong></li>
+                        <li>Para avançar de fase, você precisa de <strong>mínimo 10 pontos</strong></li>
+                        <li>Pontuação total mínima para concluir: <strong>100 pontos</strong></li>
+                        <li>Se falhar, você repete a fase até conseguir passar</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="startGame()">🚀 Começar Jogo</button>
+            </div>
+        </div>
+
+        <!-- Tela de Jogo -->
+        <div class="screen" id="gameScreen">
+            <div class="game-header">
+                <div class="header-top">
+                    <div class="phase-info" id="phaseInfo">Fase 1: Onboarding</div>
+                    <div class="score-display">📊 <span id="scoreDisplay">0</span> pts</div>
+                </div>
+
+                <!-- Barras de Variáveis -->
+                <div class="variables-container">
+                    <div class="variable-item var-produtividade">
+                        <div class="variable-header">
+                            <span class="variable-name">⚡ Produtividade</span>
+                            <span class="variable-value" id="prodValue">0</span>
+                        </div>
+                        <div class="variable-bar">
+                            <div class="variable-fill" id="prodBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="variable-item var-reputacao">
+                        <div class="variable-header">
+                            <span class="variable-name">⭐ Reputação</span>
+                            <span class="variable-value" id="repValue">0</span>
+                        </div>
+                        <div class="variable-bar">
+                            <div class="variable-fill" id="repBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="variable-item var-conhecimento">
+                        <div class="variable-header">
+                            <span class="variable-name">📚 Conhecimento</span>
+                            <span class="variable-value" id="conValue">0</span>
+                        </div>
+                        <div class="variable-bar">
+                            <div class="variable-fill" id="conBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="variable-item var-financeiro">
+                        <div class="variable-header">
+                            <span class="variable-name">💰 Financeiro</span>
+                            <span class="variable-value" id="finValue">0</span>
+                        </div>
+                        <div class="variable-bar">
+                            <div class="variable-fill" id="finBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+
+            <div class="question-area">
+                <div class="question-number" id="questionNumber">Questão 1 de 3</div>
+                
+                <div class="scenario-box" id="scenarioBox">
+                    <div class="scenario-title">📋 Situação:</div>
+                    <div id="scenarioText"></div>
+                </div>
+
+                <div class="question-text" id="questionText"></div>
+
+                <div id="feedbackArea"></div>
+
+                <div id="optionsArea"></div>
+
+                <button class="btn btn-primary" id="nextBtn" style="display: none; margin-top: 20px;" onclick="nextQuestion()">
+                    Próxima Questão →
+                </button>
+            </div>
+        </div>
+
+        <!-- Tela de Falha na Fase -->
+        <div class="screen" id="phaseFailScreen">
+            <div class="phase-fail-screen">
+                <div class="fail-icon">😞</div>
+                <h2 class="fail-title">Desempenho Insuficiente</h2>
+                <p class="fail-message">Você não atingiu a pontuação mínima necessária para avançar nesta fase.<br>Revise os conceitos e tente novamente!</p>
+
+                <div class="fail-stats">
+                    <h3>📊 Seu Desempenho nesta Fase:</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">⚡ Produtividade:</span>
+                        <span class="stat-value" id="failProd">0 pontos</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">⭐ Reputação:</span>
+                        <span class="stat-value" id="failRep">0 pontos</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">📚 Conhecimento:</span>
+                        <span class="stat-value" id="failCon">0 pontos</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">💰 Resultado Financeiro:</span>
+                        <span class="stat-value" id="failFin">0 pontos</span>
+                    </div>
+                    <div class="stat-row" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ff9800;">
+                        <span class="stat-label"><strong>Total da Fase:</strong></span>
+                        <span class="stat-value" id="failTotal" style="font-size: 1.2em;">0 pontos</span>
+                    </div>
+                </div>
+
+                <p style="color: #ff9800; font-weight: bold; margin: 20px 0;">
+                    ⚠️ Pontuação mínima necessária: 10 pontos
+                </p>
+
+                <button class="btn btn-primary" onclick="retryPhase()">🔄 Tentar Novamente</button>
+            </div>
+        </div>
+
+        <!-- Tela de Resultado -->
+        <div class="screen" id="resultScreen">
+            <div class="result-screen">
+                <div class="result-sprite" id="resultEmoji">🎉</div>
+                <h2 class="result-title" id="resultTitle">Parabéns!</h2>
+                <div class="result-score" id="finalScore">0</div>
+                <p class="result-message" id="resultMessage"></p>
+
+                <div class="result-breakdown">
+                    <h3 style="margin-bottom: 15px; color: #667eea;">📊 Desempenho Final:</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">⚡ Produtividade Total:</span>
+                        <span class="stat-value" id="finalProd">0 pts</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">⭐ Reputação Total:</span>
+                        <span class="stat-value" id="finalRep">0 pts</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">📚 Conhecimento Total:</span>
+                        <span class="stat-value" id="finalCon">0 pts</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">💰 Resultado Financeiro Total:</span>
+                        <span class="stat-value" id="finalFin">0 pts</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showCredits()">👥 Ver Equipe de Desenvolvimento</button>
+                <button class="btn btn-primary" onclick="restartGame()">🔄 Jogar Novamente</button>
+            </div>
+        </div>
+
+        <!-- Tela de Créditos -->
+        <div class="screen" id="creditsScreen">
+            <div class="credits-screen">
+                <h1 class="credits-title">🎮 Equipe de Desenvolvimento</h1>
+                <p class="credits-subtitle">Conheça os profissionais que tornaram este jogo possível</p>
+
+                <div class="team-grid">
+                    <!-- Membro 1 -->
+                    <div class="team-card">
+                        <div class="team-avatar">👨‍💻</div>
+                        <div class="team-name">Paulo Arthur</div>
+                        <div class="team-role">Jovem Aprendiz</div>
+                    </div>
+
+                    <!-- Membro 2 -->
+                    <div class="team-card">
+                        <div class="team-avatar">🎨</div>
+                        <div class="team-name">Carlos Costa</div>
+                        <div class="team-role">Jovem Aprendiz</div>
+                    </div>
+
+                    <!-- Membro 3 -->
+                    <div class="team-card">
+                        <div class="team-avatar">📝</div>
+                        <div class="team-name">Pedro de Oliveira</div>
+                        <div class="team-role">Jovem Aprendiz</div>
+                    </div>
+
+                    <!-- Membro 4 -->
+                    <div class="team-card">
+                        <div class="team-avatar">🎯</div>
+                        <div class="team-name">Bernardo Silva</div>
+                        <div class="team-role">Jovem Aprendiz</div>
+                    </div>
+                </div>
+
+                <div class="credits-footer">
+                    <p><strong>🏢 Trabalho Gamificação</strong></p>
+                    <p>Desenvolvido com dedicação para transformar o aprendizado corporativo</p>
+                    <p style="font-size: 0.85em; color: #999; margin-top: 20px;">© 2026 - Todos os direitos reservados</p>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top: 30px;" onclick="backToResults()">← Voltar aos Resultados</button>
+                <button class="btn btn-primary" style="margin-top: 30px;" onclick="restartGame()">🔄 Jogar Novamente</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURAÇÃO DO JOGO ====================
+        
+        // Estrutura de fases do jogo com variáveis
+        const gamePhases = [
+            {
+                id: 1,
+                name: "Onboarding - Primeiro Dia",
+                description: "Sua entrada na empresa",
+                questions: [
+                    {
+                        scenario: "É seu primeiro dia na empresa Via Porto. Você chega 15 minutos antes do horário e encontra a recepção vazia.",
+                        question: "Qual é a melhor ação a tomar?",
+                        options: [
+                            { 
+                                text: "Esperar na recepção mexendo no celular até alguém aparecer", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Razoável, mas você poderia ser mais proativo!" 
+                            },
+                            { 
+                                text: "Procurar avisar alguém da sua chegada ou ligar para o RH", 
+                                variables: { produtividade: 5, reputacao: 5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Excelente! Proatividade é fundamental no primeiro dia." 
+                            },
+                            { 
+                                text: "Ir embora e voltar no horário exato do expediente", 
+                                variables: { produtividade: -5, reputacao: -5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Isso demonstra falta de comprometimento." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Seu gestor lhe entrega um manual de 50 páginas sobre processos da empresa e diz que você terá uma avaliação sobre o conteúdo em uma semana.",
+                        question: "Como você organiza seu estudo?",
+                        options: [
+                            { 
+                                text: "Deixar para ler tudo nos últimos 2 dias antes da avaliação", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Procrastinação pode causar estresse e baixa retenção." 
+                            },
+                            { 
+                                text: "Ler 7-8 páginas por dia e fazer anotações dos pontos principais", 
+                                variables: { produtividade: 5, reputacao: 0, conhecimento: 5, financeiro: 0 },
+                                feedback: "Perfeito! Organização e consistência são chaves do sucesso." 
+                            },
+                            { 
+                                text: "Pedir para um colega resumir o conteúdo para você", 
+                                variables: { produtividade: -5, reputacao: -5, conhecimento: -5, financeiro: 0 },
+                                feedback: "Isso demonstra falta de responsabilidade individual." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Durante o tour pela empresa, você é apresentado a 15 pessoas de diferentes departamentos.",
+                        question: "Qual é a melhor estratégia para lembrar de todos?",
+                        options: [
+                            { 
+                                text: "Anotar os nomes e funções em um caderno logo após as apresentações", 
+                                variables: { produtividade: 0, reputacao: 5, conhecimento: 5, financeiro: 0 },
+                                feedback: "Ótimo! Registrar informações é uma habilidade profissional valiosa." 
+                            },
+                            { 
+                                text: "Confiar na sua memória e tentar lembrar naturalmente", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Arriscado! A memória pode falhar sob pressão." 
+                            },
+                            { 
+                                text: "Não se preocupar muito, você aprenderá com o tempo", 
+                                variables: { produtividade: 0, reputacao: -5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Isso pode passar uma impressão de desinteresse." 
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: "Gestão de Tempo",
+                description: "Organização e priorização",
+                questions: [
+                    {
+                        scenario: "São 9h da manhã e você tem 4 tarefas para hoje: Relatório urgente (2h), Reunião às 14h (precisa preparar), E-mails pendentes (1h), Treinamento online (3h).",
+                        question: "Qual a melhor ordem de execução?",
+                        options: [
+                            { 
+                                text: "E-mails → Treinamento → Relatório → Preparação para reunião", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: -5 },
+                                feedback: "Você deixou tarefas urgentes para o final." 
+                            },
+                            { 
+                                text: "Relatório urgente → Preparação reunião → E-mails → Treinamento", 
+                                variables: { produtividade: 5, reputacao: 5, conhecimento: 0, financeiro: 5 },
+                                feedback: "Excelente priorização! Urgente e importante primeiro." 
+                            },
+                            { 
+                                text: "Treinamento → Relatório → E-mails → Reunião sem preparação", 
+                                variables: { produtividade: -5, reputacao: -5, conhecimento: 0, financeiro: -5 },
+                                feedback: "Péssima gestão de prioridades." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Você está no meio de uma tarefa importante quando um colega pede ajuda urgente em algo que levará 30 minutos.",
+                        question: "Como você procede?",
+                        options: [
+                            { 
+                                text: "Parar tudo imediatamente e ajudar o colega", 
+                                variables: { produtividade: 0, reputacao: 5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Colaboração é boa, mas sem avaliar o impacto pode prejudicar seu trabalho." 
+                            },
+                            { 
+                                text: "Perguntar se pode ajudá-lo em 20 minutos, após finalizar sua etapa atual", 
+                                variables: { produtividade: 5, reputacao: 5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Perfeito! Você equilibrou colaboração com foco na sua tarefa." 
+                            },
+                            { 
+                                text: "Recusar completamente, dizendo que está ocupado", 
+                                variables: { produtividade: 0, reputacao: -5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Trabalho em equipe também é importante. Busque um meio termo." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Você percebe que não conseguirá entregar uma tarefa no prazo original de hoje às 18h. São 15h e você ainda precisa de 4 horas.",
+                        question: "Qual a melhor atitude?",
+                        options: [
+                            { 
+                                text: "Trabalhar até conseguir terminar, mesmo que seja depois do horário", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Dedicação é boa, mas comunicação prévia é essencial." 
+                            },
+                            { 
+                                text: "Avisar seu gestor imediatamente, explicar a situação e negociar novo prazo", 
+                                variables: { produtividade: 0, reputacao: 5, conhecimento: 5, financeiro: 0 },
+                                feedback: "Excelente! Transparência e comunicação proativa são fundamentais." 
+                            },
+                            { 
+                                text: "Entregar incompleto no prazo sem avisar ninguém", 
+                                variables: { produtividade: -5, reputacao: -5, conhecimento: 0, financeiro: -5 },
+                                feedback: "Isso pode causar problemas sérios e perda de confiança." 
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                name: "Atendimento ao Cliente",
+                description: "Comunicação e resolução de problemas",
+                questions: [
+                    {
+                        scenario: "Um cliente entra em contato extremamente irritado porque recebeu um produto com defeito. Ele já está alterado e usando palavras grosseiras.",
+                        question: "Como você deve iniciar o atendimento?",
+                        options: [
+                            { 
+                                text: "Pedir para ele se acalmar antes de continuar a conversa", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Isso pode irritar ainda mais o cliente." 
+                            },
+                            { 
+                                text: "Ouvir atentamente, demonstrar empatia e pedir desculpas pelo transtorno", 
+                                variables: { produtividade: 0, reputacao: 5, conhecimento: 0, financeiro: 5 },
+                                feedback: "Perfeito! Empatia é a chave para reverter situações difíceis." 
+                            },
+                            { 
+                                text: "Explicar que a culpa não é sua e transferir para outro setor", 
+                                variables: { produtividade: -5, reputacao: -5, conhecimento: 0, financeiro: -5 },
+                                feedback: "Isso demonstra falta de responsabilidade e profissionalismo." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Um cliente pergunta sobre um produto que não está disponível no momento, mas você sabe que um concorrente tem.",
+                        question: "O que você faz?",
+                        options: [
+                            { 
+                                text: "Dizer que não tem e encerrar o atendimento", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: -5 },
+                                feedback: "Você perdeu a oportunidade de ajudar e fidelizar o cliente." 
+                            },
+                            { 
+                                text: "Oferecer alternativas similares da sua empresa e perguntar se pode ajudar de outra forma", 
+                                variables: { produtividade: 5, reputacao: 5, conhecimento: 0, financeiro: 5 },
+                                feedback: "Excelente! Você buscou soluções dentro das possibilidades da empresa." 
+                            },
+                            { 
+                                text: "Indicar abertamente o concorrente", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: -5 },
+                                feedback: "Honestidade é boa, mas você deveria tentar soluções internas primeiro." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Você prometeu retornar para um cliente em 24h com uma solução, mas após 48h você ainda não tem resposta do setor responsável.",
+                        question: "Qual a melhor ação?",
+                        options: [
+                            { 
+                                text: "Esperar ter a resposta completa antes de entrar em contato", 
+                                variables: { produtividade: 0, reputacao: -5, conhecimento: 0, financeiro: 0 },
+                                feedback: "O cliente ficará frustrado pela falta de retorno." 
+                            },
+                            { 
+                                text: "Entrar em contato, pedir desculpas pelo atraso e dar uma previsão realista", 
+                                variables: { produtividade: 0, reputacao: 5, conhecimento: 5, financeiro: 0 },
+                                feedback: "Perfeito! Manter o cliente informado mantém a confiança." 
+                            },
+                            { 
+                                text: "Enviar uma mensagem automática genérica", 
+                                variables: { produtividade: -5, reputacao: -5, conhecimento: 0, financeiro: -5 },
+                                feedback: "Isso demonstra descaso com o cliente." 
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                name: "Trabalho em Equipe",
+                description: "Colaboração e liderança",
+                questions: [
+                    {
+                        scenario: "Sua equipe de 5 pessoas precisa apresentar um projeto em 3 dias, mas dois membros estão sobrecarregados com outras tarefas.",
+                        question: "Como você organiza o time?",
+                        options: [
+                            { 
+                                text: "Dividir igualmente entre todos os 5 membros", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Você ignorou que 2 membros estão sobrecarregados." 
+                            },
+                            { 
+                                text: "Redistribuir as tarefas para os 3 membros disponíveis e oferecer suporte aos sobrecarregados", 
+                                variables: { produtividade: 5, reputacao: 5, conhecimento: 5, financeiro: 0 },
+                                feedback: "Excelente gestão! Você considerou a realidade de cada um." 
+                            },
+                            { 
+                                text: "Fazer tudo sozinho para garantir a qualidade", 
+                                variables: { produtividade: -5, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Isso não é trabalho em equipe e pode levar ao burnout." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Durante uma reunião, um colega apresenta uma ideia que você sabe que não funcionará, baseado em experiência anterior.",
+                        question: "Como você expressa sua opinião?",
+                        options: [
+                            { 
+                                text: "Interromper e dizer diretamente que a ideia não vai funcionar", 
+                                variables: { produtividade: 0, reputacao: -5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Isso pode constranger o colega e criar conflito." 
+                            },
+                            { 
+                                text: "Esperar ele terminar, elogiar a iniciativa e apresentar os desafios de forma construtiva", 
+                                variables: { produtividade: 0, reputacao: 5, conhecimento: 5, financeiro: 0 },
+                                feedback: "Perfeito! Feedback construtivo preserva o relacionamento." 
+                            },
+                            { 
+                                text: "Não falar nada para evitar conflito", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: -5, financeiro: -5 },
+                                feedback: "Omissão pode prejudicar o projeto e a equipe." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Você foi designado líder temporário de um projeto e percebe que um membro não está contribuindo adequadamente.",
+                        question: "Qual sua abordagem?",
+                        options: [
+                            { 
+                                text: "Conversar em particular, entender os motivos e oferecer ajuda", 
+                                variables: { produtividade: 5, reputacao: 5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Excelente liderança! Empatia e comunicação individual são fundamentais." 
+                            },
+                            { 
+                                text: "Expor o problema na frente de todos em reunião", 
+                                variables: { produtividade: 0, reputacao: -5, conhecimento: 0, financeiro: -5 },
+                                feedback: "Isso cria constrangimento e prejudica o clima da equipe." 
+                            },
+                            { 
+                                text: "Relatar diretamente ao seu gestor sem conversar com a pessoa", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Você deveria tentar resolver diretamente primeiro." 
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 5,
+                name: "Tomada de Decisão sob Pressão",
+                description: "Decisões estratégicas em situações críticas",
+                questions: [
+                    {
+                        scenario: "Faltam 2 horas para uma apresentação importante e você descobre um erro crítico nos dados. Corrigir levará 3 horas.",
+                        question: "O que você decide fazer?",
+                        options: [
+                            { 
+                                text: "Apresentar com o erro e torcer para ninguém perceber", 
+                                variables: { produtividade: -5, reputacao: -5, conhecimento: 0, financeiro: -5 },
+                                feedback: "Isso pode destruir sua credibilidade profissional." 
+                            },
+                            { 
+                                text: "Informar imediatamente, apresentar o que está correto e propor nova data para o completo", 
+                                variables: { produtividade: 0, reputacao: 5, conhecimento: 0, financeiro: 5 },
+                                feedback: "Excelente! Transparência e responsabilidade são essenciais." 
+                            },
+                            { 
+                                text: "Cancelar a apresentação sem explicações", 
+                                variables: { produtividade: 0, reputacao: -5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Falta de comunicação gera desconfiança." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Você recebe duas ofertas de emprego: uma com 30% mais salário mas em área que não gosta, outra com crescimento menor mas na área dos sonhos.",
+                        question: "Quais fatores você prioriza na decisão?",
+                        options: [
+                            { 
+                                text: "Escolher apenas pelo salário maior, dinheiro resolve tudo", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Satisfação profissional também é importante para o longo prazo." 
+                            },
+                            { 
+                                text: "Avaliar equilíbrio entre satisfação, crescimento profissional e remuneração", 
+                                variables: { produtividade: 5, reputacao: 0, conhecimento: 5, financeiro: 5 },
+                                feedback: "Perfeito! Decisões de carreira devem ser holísticas." 
+                            },
+                            { 
+                                text: "Jogar uma moeda, deixar a sorte decidir", 
+                                variables: { produtividade: -5, reputacao: -5, conhecimento: -5, financeiro: 0 },
+                                feedback: "Decisões importantes merecem análise criteriosa." 
+                            }
+                        ]
+                    },
+                    {
+                        scenario: "Seu gestor pede sua opinião sobre demitir um colega de equipe que não está performando bem, mas que você sabe estar passando por problemas pessoais graves.",
+                        question: "Como você responde?",
+                        options: [
+                            { 
+                                text: "Concordar com a demissão, afinal é uma decisão de negócios", 
+                                variables: { produtividade: 0, reputacao: 0, conhecimento: 0, financeiro: 0 },
+                                feedback: "Você poderia considerar fatores humanos também." 
+                            },
+                            { 
+                                text: "Sugerir um plano de desenvolvimento e suporte temporário antes de decisões drásticas", 
+                                variables: { produtividade: 0, reputacao: 5, conhecimento: 5, financeiro: 0 },
+                                feedback: "Excelente! Você equilibrou empatia com responsabilidade empresarial." 
+                            },
+                            { 
+                                text: "Recusar dar opinião para não se envolver", 
+                                variables: { produtividade: 0, reputacao: -5, conhecimento: 0, financeiro: 0 },
+                                feedback: "Quando solicitado, você deve contribuir com sua visão." 
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // ==================== VARIÁVEIS DO JOGO ====================
+        let currentPhase = 0;
+        let currentQuestion = 0;
+        let totalScore = 0;
+        
+        // Variáveis individuais GLOBAIS
+        let produtividade = 0;
+        let reputacao = 0;
+        let conhecimento = 0;
+        let financeiro = 0;
+
+        // Variáveis da fase atual
+        let phaseProdutividade = 0;
+        let phaseReputacao = 0;
+        let phaseConhecimento = 0;
+        let phaseFinanceiro = 0;
+
+        let totalQuestions = 0;
+        let answeredQuestions = 0;
+
+        // Pontuação mínima para passar de fase (10 pontos no total da fase)
+        const MIN_PHASE_SCORE = 10;
+        // Pontuação mínima geral para concluir o jogo com sucesso (100 pontos)
+        const MIN_SUCCESS_SCORE = 100;
+        // Pontuação máxima possível por variável (5 fases x 3 questões x 5 pontos = 75)
+        const MAX_VARIABLE_SCORE = 75;
+
+        // ==================== FUNÇÕES PRINCIPAIS ====================
+
+        function startGame() {
+            // Resetar todas variáveis
+            currentPhase = 0;
+            currentQuestion = 0;
+            totalScore = 0;
+            
+            produtividade = 0;
+            reputacao = 0;
+            conhecimento = 0;
+            financeiro = 0;
+            
+            totalQuestions = gamePhases.reduce((sum, phase) => sum + phase.questions.length, 0);
+            answeredQuestions = 0;
+
+            // Mudar para tela de jogo
+            switchScreen('startScreen', 'gameScreen');
+            
+            // Carregar primeira questão
+            loadPhase();
+        }
+
+        function loadPhase() {
+            // Resetar variáveis da fase
+            phaseProdutividade = 0;
+            phaseReputacao = 0;
+            phaseConhecimento = 0;
+            phaseFinanceiro = 0;
+            
+            currentQuestion = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const phase = gamePhases[currentPhase];
+            const question = phase.questions[currentQuestion];
+
+            // Atualizar informações da fase
+            document.getElementById('phaseInfo').textContent = `Fase ${phase.id}: ${phase.name}`;
+            document.getElementById('scoreDisplay').textContent = totalScore;
+            document.getElementById('questionNumber').textContent = 
+                `Questão ${currentQuestion + 1} de ${phase.questions.length}`;
+
+            // Atualizar cenário e questão
+            document.getElementById('scenarioText').textContent = question.scenario;
+            document.getElementById('questionText').textContent = question.question;
+
+            // Limpar feedback
+            document.getElementById('feedbackArea').innerHTML = '';
+
+            // Esconder botão próximo
+            document.getElementById('nextBtn').style.display = 'none';
+
+            // Randomizar e exibir opções
+            displayOptions(question.options);
+
+            // Atualizar barra de progresso
+            updateProgressBar();
+            
+            // Atualizar displays de variáveis
+            updateVariableDisplays();
+        }
+
+        function displayOptions(options) {
+            const optionsArea = document.getElementById('optionsArea');
+            optionsArea.innerHTML = '';
+
+            // Criar cópia do array e randomizar
+            const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'btn-option';
+                button.textContent = option.text;
+                button.onclick = () => selectAnswer(option, button);
+                optionsArea.appendChild(button);
+            });
+        }
+
+        function selectAnswer(selectedOption, button) {
+            // Desabilitar todos os botões
+            const allButtons = document.querySelectorAll('.btn-option');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            // Verificar se é a melhor resposta (soma total de todas variáveis >= 10)
+            const totalPoints = Object.values(selectedOption.variables).reduce((sum, val) => sum + val, 0);
+            const isBestAnswer = totalPoints >= 10;
+            
+            button.classList.add(isBestAnswer ? 'correct' : 'incorrect');
+
+            // Destacar a melhor resposta se o usuário não escolheu ela
+            if (!isBestAnswer) {
+                allButtons.forEach(btn => {
+                    const phase = gamePhases[currentPhase];
+                    const question = phase.questions[currentQuestion];
+                    const bestOption = question.options.find(opt => {
+                        const pts = Object.values(opt.variables).reduce((sum, val) => sum + val, 0);
+                        return pts >= 10;
+                    });
+                    if (bestOption && btn.textContent === bestOption.text) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            // Adicionar pontos às variáveis da fase
+            phaseProdutividade += selectedOption.variables.produtividade;
+            phaseReputacao += selectedOption.variables.reputacao;
+            phaseConhecimento += selectedOption.variables.conhecimento;
+            phaseFinanceiro += selectedOption.variables.financeiro;
+
+            // Adicionar pontos às variáveis globais
+            produtividade += selectedOption.variables.produtividade;
+            reputacao += selectedOption.variables.reputacao;
+            conhecimento += selectedOption.variables.conhecimento;
+            financeiro += selectedOption.variables.financeiro;
+
+            // Calcular pontuação total
+            totalScore = produtividade + reputacao + conhecimento + financeiro;
+            
+            // Atualizar displays
+            updateVariableDisplays();
+
+            // Mostrar feedback
+            showFeedback(selectedOption.feedback, isBestAnswer);
+
+            // Incrementar questões respondidas
+            answeredQuestions++;
+            updateProgressBar();
+
+            // Mostrar botão de próxima questão
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            updateNextButtonText();
+        }
+
+        function showFeedback(message, isCorrect) {
+            const feedbackArea = document.getElementById('feedbackArea');
+            feedbackArea.innerHTML = `
+                <div class="feedback ${isCorrect ? 'correct' : 'incorrect'}">
+                    ${isCorrect ? '✅' : '❌'} ${message}
+                </div>
+            `;
+        }
+
+        function updateVariableDisplays() {
+            // Atualizar valores
+            document.getElementById('prodValue').textContent = produtividade;
+            document.getElementById('repValue').textContent = reputacao;
+            document.getElementById('conValue').textContent = conhecimento;
+            document.getElementById('finValue').textContent = financeiro;
+            document.getElementById('scoreDisplay').textContent = totalScore;
+
+            // Atualizar barras (percentual sobre o máximo possível)
+            const prodPercent = Math.max(0, Math.min(100, (produtividade / MAX_VARIABLE_SCORE) * 100));
+            const repPercent = Math.max(0, Math.min(100, (reputacao / MAX_VARIABLE_SCORE) * 100));
+            const conPercent = Math.max(0, Math.min(100, (conhecimento / MAX_VARIABLE_SCORE) * 100));
+            const finPercent = Math.max(0, Math.min(100, (financeiro / MAX_VARIABLE_SCORE) * 100));
+
+            document.getElementById('prodBar').style.width = prodPercent + '%';
+            document.getElementById('repBar').style.width = repPercent + '%';
+            document.getElementById('conBar').style.width = conPercent + '%';
+            document.getElementById('finBar').style.width = finPercent + '%';
+        }
+
+        function updateProgressBar() {
+            const progress = (answeredQuestions / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function updateNextButtonText() {
+            const nextBtn = document.getElementById('nextBtn');
+            const phase = gamePhases[currentPhase];
+            
+            if (currentQuestion < phase.questions.length - 1) {
+                nextBtn.textContent = 'Próxima Questão →';
+            } else {
+                nextBtn.textContent = 'Concluir Fase →';
+            }
+        }
+
+        function nextQuestion() {
+            const phase = gamePhases[currentPhase];
+
+            // Verificar se há mais questões na fase atual
+            if (currentQuestion < phase.questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } 
+            // Fim da fase - verificar pontuação
+            else {
+                checkPhaseCompletion();
+            }
+        }
+
+        function checkPhaseCompletion() {
+            const phaseTotal = phaseProdutividade + phaseReputacao + phaseConhecimento + phaseFinanceiro;
+            
+            if (phaseTotal < MIN_PHASE_SCORE) {
+                // Falhou na fase
+                showPhaseFail();
+            } else {
+                // Passou na fase
+                if (currentPhase < gamePhases.length - 1) {
+                    // Ir para próxima fase
+                    currentPhase++;
+                    loadPhase();
+                } else {
+                    // Fim do jogo
+                    showResults();
+                }
+            }
+        }
+
+        function showPhaseFail() {
+            // Atualizar estatísticas da falha
+            document.getElementById('failProd').textContent = phaseProdutividade + ' pontos';
+            document.getElementById('failRep').textContent = phaseReputacao + ' pontos';
+            document.getElementById('failCon').textContent = phaseConhecimento + ' pontos';
+            document.getElementById('failFin').textContent = phaseFinanceiro + ' pontos';
+            
+            const phaseTotal = phaseProdutividade + phaseReputacao + phaseConhecimento + phaseFinanceiro;
+            document.getElementById('failTotal').textContent = phaseTotal + ' pontos';
+            
+            // Aplicar classe de cor
+            const statValues = document.querySelectorAll('#phaseFailScreen .stat-value');
+            statValues.forEach(el => {
+                const value = parseInt(el.textContent);
+                if (value < 0) {
+                    el.classList.add('low');
+                } else if (value < 5) {
+                    el.classList.add('ok');
+                }
+            });
+
+            // Mudar para tela de falha
+            switchScreen('gameScreen', 'phaseFailScreen');
+        }
+
+        function retryPhase() {
+            // Remover pontos da fase das variáveis globais
+            produtividade -= phaseProdutividade;
+            reputacao -= phaseReputacao;
+            conhecimento -= phaseConhecimento;
+            financeiro -= phaseFinanceiro;
+            
+            // Recalcular total
+            totalScore = produtividade + reputacao + conhecimento + financeiro;
+            
+            // Resetar contadores de resposta da fase
+            const phase = gamePhases[currentPhase];
+            answeredQuestions -= phase.questions.length;
+            
+            // Voltar para o jogo e recarregar a fase
+            switchScreen('phaseFailScreen', 'gameScreen');
+            loadPhase();
+        }
+
+        function showResults() {
+            const maxScore = totalQuestions * 10; // 15 questões x 10 pontos = 150 max
+
+            // Determinar resultado baseado na pontuação total
+            let emoji, title, message;
+            if (totalScore >= 130) {
+                emoji = '🏆';
+                title = 'Excepcional!';
+                message = 'Você demonstrou excelência em todas as competências! Está pronto para desafios ainda maiores no ambiente corporativo.';
+            } else if (totalScore >= MIN_SUCCESS_SCORE) {
+                emoji = '🌟';
+                title = 'Parabéns!';
+                message = 'Ótimo desempenho! Você completou com sucesso o treinamento e demonstrou compreensão das situações corporativas.';
+            } else if (totalScore >= 80) {
+                emoji = '👍';
+                title = 'Concluído!';
+                message = 'Você completou todas as fases! Continue desenvolvendo suas habilidades profissionais.';
+            } else {
+                emoji = '📚';
+                title = 'Jogo Completo!';
+                message = 'Você chegou ao fim! Há espaço para crescimento. Jogue novamente para melhorar suas pontuações.';
+            }
+
+            // Atualizar elementos da tela de resultado
+            document.getElementById('resultEmoji').textContent = emoji;
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('finalScore').textContent = `${totalScore} pontos`;
+            document.getElementById('resultMessage').textContent = message;
+
+            // Atualizar breakdown de variáveis
+            document.getElementById('finalProd').textContent = produtividade;
+            document.getElementById('finalRep').textContent = reputacao;
+            document.getElementById('finalCon').textContent = conhecimento;
+            document.getElementById('finalFin').textContent = financeiro;
+
+            // Mudar para tela de resultado
+            switchScreen('gameScreen', 'resultScreen');
+        }
+
+        function restartGame() {
+            switchScreen('resultScreen', 'startScreen');
+            switchScreen('creditsScreen', 'startScreen');
+            switchScreen('phaseFailScreen', 'startScreen');
+        }
+
+        function showCredits() {
+            switchScreen('resultScreen', 'creditsScreen');
+        }
+
+        function backToResults() {
+            switchScreen('creditsScreen', 'resultScreen');
+        }
+
+        function switchScreen(fromScreen, toScreen) {
+            document.getElementById(fromScreen).classList.remove('active');
+            document.getElementById(toScreen).classList.add('active');
+        }
+
+        // ==================== INICIALIZAÇÃO ====================
+        // O jogo inicia na tela de start por padrão
+    </script>
+</body>
+</html>
