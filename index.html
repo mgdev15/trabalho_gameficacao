@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="xp_next-logo.jpg">
     <title>Trabalho Gamificação — Jogo de Desenvolvimento Profissional</title>
     <style>
         * {
@@ -13,12 +14,29 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(
+                135deg,
+                #667eea,
+                #6f74df,
+                #d4a9ff,
+                #7c5ab0,
+                #667eea
+            );
+            background-size: 400% 400%;
+            animation: gradientMove 12s ease-in-out infinite;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            25% { background-position: 50% 100%; }
+            50% { background-position: 100% 50%; }
+            75% { background-position: 50% 0%; }
+            100% { background-position: 0% 50%; }
         }
 
         .game-container {
@@ -43,6 +61,24 @@
 
         .start-screen {
             text-align: center;
+        }
+
+        #xp-next-logo{
+            height: 100px;
+            display: block;
+            margin: auto;
+            animation: refreshFadeIn 1.2s ease forwards;
+        }
+
+        @keyframes refreshFadeIn{
+            from{
+                opacity: .2;
+                transform: translateY(15%);
+            }
+            to{
+                opacity: 1;
+                transform: translateY(0%);
+            }
         }
 
         .game-title {
@@ -749,12 +785,10 @@
             height: 120px;
             margin: 0 auto 20px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
+            background: url(xp_next-logo.jpg) center/cover no-repeat fixed;
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            scale: 1;
+            rotate: 0deg;
             transition: all 0.3s ease;
         }
 
@@ -792,6 +826,23 @@
             color: #666;
             font-size: 0.95em;
             margin: 10px 0;
+        }
+
+        .footer-title strong {
+            display: flex;
+            align-items: center;   /* alinha verticalmente */
+            justify-content: center;
+        }
+
+        .footer-title img {
+            height: 30px;
+            display: block;        /* evita desalinhamento */
+        }
+
+        .copyright {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 20px;
         }
 
         /* Responsividade */
@@ -906,7 +957,8 @@
         <!-- Tela de Início -->
         <div class="screen active" id="startScreen">
             <div class="start-screen">
-                <h1 class="game-title">🏢 Trabalho Gamificação</h1>
+                <img src="xp_next-logo.jpg" id="xp-next-logo">
+                <h1 class="game-title">Trabalho Gamificação</h1>
                 <p class="game-subtitle">Desenvolva suas habilidades profissionais através de desafios reais do ambiente corporativo</p>
                 
                 <div class="character-sprite">
@@ -1152,37 +1204,46 @@
                 <div class="team-grid">
                     <!-- Membro 1 -->
                     <div class="team-card">
-                        <div class="team-avatar">👨‍💻</div>
+                        <div class="team-avatar"></div>
                         <div class="team-name">Paulo Arthur</div>
                         <div class="team-role">Jovem Aprendiz</div>
                     </div>
 
                     <!-- Membro 2 -->
                     <div class="team-card">
-                        <div class="team-avatar">🎨</div>
+                        <div class="team-avatar"></div>
                         <div class="team-name">Carlos Costa</div>
                         <div class="team-role">Jovem Aprendiz</div>
                     </div>
 
                     <!-- Membro 3 -->
                     <div class="team-card">
-                        <div class="team-avatar">📝</div>
+                        <div class="team-avatar"></div>
                         <div class="team-name">Pedro de Oliveira</div>
                         <div class="team-role">Jovem Aprendiz</div>
                     </div>
 
                     <!-- Membro 4 -->
                     <div class="team-card">
-                        <div class="team-avatar">🎯</div>
+                        <div class="team-avatar"></div>
                         <div class="team-name">Bernardo Silva</div>
                         <div class="team-role">Jovem Aprendiz</div>
                     </div>
                 </div>
 
                 <div class="credits-footer">
-                    <p><strong>🏢 Trabalho Gamificação</strong></p>
+                    <p class="footer-title">
+                        <strong>
+                            <img src="xp_next-logo.jpg" alt="XP Next Logo">
+                            Trabalho Gamificação
+                        </strong>
+                    </p>
+
                     <p>Desenvolvido com dedicação para transformar o aprendizado corporativo</p>
-                    <p style="font-size: 0.85em; color: #999; margin-top: 20px;">© 2026 - Todos os direitos reservados</p>
+
+                    <p class="copyright">
+                        © 2026 - Todos os direitos reservados
+                    </p>
                 </div>
 
                 <button class="btn btn-primary" style="margin-top: 30px;" onclick="backToResults()">← Voltar aos Resultados</button>
